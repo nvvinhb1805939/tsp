@@ -19,6 +19,8 @@ namespace TSP
             InitializeComponent();
         }
 
+        bool isPaint = false;
+
         string filePath = @"D:\Programs\CT239\TSP\TSP\point.txt";
 
         double x;
@@ -32,30 +34,34 @@ namespace TSP
 
         private void pnlResult_Paint(object sender, PaintEventArgs e)
         {
-            StreamReader file = new StreamReader(filePath);
-            float round = 30;
-            scale = round;
-            float xOrigin = (pnlResult.Width / 2) - (round / 2) ;
-            float yOrigin = (pnlResult.Height / 2) - (round / 2);
-            int row = 0;
-            while ((line = file.ReadLine()) != null)
+            if(isPaint)
             {
-                row++;
-                if(row == 1)
+                StreamReader file = new StreamReader(filePath);
+                float round = 30;
+                scale = round;
+                float xOrigin = (pnlResult.Width / 2) - (round / 2);
+                float yOrigin = (pnlResult.Height / 2) - (round / 2);
+                int row = 0;
+                while ((line = file.ReadLine()) != null)
                 {
-                    amount = Int32.Parse(File.ReadLines(filePath).First());
-                } else
-                {
-                    string[] part = line.Split(' ');
-                    x = (Convert.ToDouble(part[0]) * scale + xOrigin);
-                    y = (Convert.ToDouble(part[1]) * scale + yOrigin);
-                    //plot.Add(new Point((Int32)x, (Int32)y));
-                    e.Graphics.FillEllipse(Brushes.Black, Convert.ToInt32(x),
-                        Convert.ToInt32(y), round, round);
+                    row++;
+                    if (row == 1)
+                    {
+                        amount = Int32.Parse(File.ReadLines(filePath).First());
+                    }
+                    else
+                    {
+                        string[] part = line.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        x = (Convert.ToDouble(part[0]) * scale + xOrigin);
+                        y = (Convert.ToDouble(part[1]) * scale + yOrigin);
+                        //plot.Add(new Point((Int32)x, (Int32)y));
+                        e.Graphics.FillEllipse(Brushes.Black, Convert.ToInt32(x),
+                            Convert.ToInt32(y), round, round);
+                    }
+
                 }
-                
+                file.Close();
             }
-            file.Close();
         }
 
         private void frmHome_Load(object sender, EventArgs e)
@@ -84,13 +90,14 @@ namespace TSP
                     StringSplitOptions.None);
                 foreach (string point in points)
                 {
-                    string[] part = point.Split(' ');
-                    if (!isNumber(part[0], "number") || !isNumber(part[1], "number"))
+                    string[] part = point.Trim().Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+                    if (!isNumber(part[0].Trim(), "number") || !isNumber(part[1].Trim(), "number"))
                     {
                         handleInput("Tọa độ đảo phải là số!!!", "Dữ liệu không hợp lệ",
                             MessageBoxButtons.OK, MessageBoxIcon.Error, txtInfo);
                         return;
                     }
+                    cbxStart.Items.Add(part[2]);
                 }
                 if(points.Length != amount)
                 {
@@ -109,6 +116,7 @@ namespace TSP
             showMessage("Thêm thông tin thành công!!!", "Success",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
             btnDel.Enabled = true;
+            isPaint = true;
             this.Refresh();
         }
         
@@ -117,6 +125,8 @@ namespace TSP
             txtAmount.Text = "";
             txtInfo.Text = "";
             btnDel.Enabled = false;
+            isPaint = false;
+            this.Refresh();
         }
 
         private void btnFind_Click(object sender, EventArgs e)

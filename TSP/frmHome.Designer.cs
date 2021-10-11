@@ -375,7 +375,7 @@
             this.txtInfo.Padding = new System.Windows.Forms.Padding(3);
             this.txtInfo.PasswordChar = '\0';
             this.txtInfo.PlaceholderForeColor = System.Drawing.Color.Silver;
-            this.txtInfo.PlaceholderText = "[tọa độ x] [tọa độ y] [tên đảo]";
+            this.txtInfo.PlaceholderText = "";
             this.txtInfo.ReadOnly = false;
             this.txtInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtInfo.SelectedText = "";
@@ -389,7 +389,7 @@
             this.txtInfo.TextMarginBottom = 0;
             this.txtInfo.TextMarginLeft = 0;
             this.txtInfo.TextMarginTop = 10;
-            this.txtInfo.TextPlaceholder = "[tọa độ x] [tọa độ y] [tên đảo]";
+            this.txtInfo.TextPlaceholder = "";
             this.txtInfo.UseSystemPasswordChar = false;
             this.txtInfo.WordWrap = false;
             // 
