@@ -27,35 +27,49 @@ namespace TSP
         double y;
         string line;
         float scale = 1;
+        int selectedIndex = -100;
         // List<Point> plot = new List<Point>();
 
         int amount = 0;
         string info = "";
+        
 
         private void pnlResult_Paint(object sender, PaintEventArgs e)
         {
             if(isPaint)
             {
+                
+
                 StreamReader file = new StreamReader(filePath);
                 float round = 30;
                 scale = round;
                 float xOrigin = (pnlResult.Width / 2) - (round / 2);
                 float yOrigin = (pnlResult.Height / 2) - (round / 2);
+                Brush color;
+
                 int row = 0;
                 while ((line = file.ReadLine()) != null)
                 {
                     row++;
+
                     if (row == 1)
                     {
                         amount = Int32.Parse(File.ReadLines(filePath).First());
                     }
                     else
                     {
+                        if (row == selectedIndex + 1)
+                        {
+                            color = Brushes.Coral;
+                        } else
+                        {
+                             color = Brushes.Black;
+                        }
                         string[] part = line.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                         x = (Convert.ToDouble(part[0]) * scale + xOrigin);
                         y = (Convert.ToDouble(part[1]) * scale + yOrigin);
                         //plot.Add(new Point((Int32)x, (Int32)y));
-                        e.Graphics.FillEllipse(Brushes.Black, Convert.ToInt32(x),
+                        e.Graphics.FillEllipse(color, Convert.ToInt32(x),
                             Convert.ToInt32(y), round, round);
                     }
 
@@ -71,6 +85,8 @@ namespace TSP
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            cbxStart.Items.Clear();
+            cbxStart.Items.Add("--Chọn đảo bắt đầu--");
             if(!isNumber(txtAmount.Text.Trim(), "integer"))
             {
                 handleInput("Số đảo phải là số!!!", "Dữ liệu không hợp lệ",
@@ -97,7 +113,7 @@ namespace TSP
                             MessageBoxButtons.OK, MessageBoxIcon.Error, txtInfo);
                         return;
                     }
-                    cbxStart.Items.Add(part[2]);
+                    cbxStart.Items.Add(part[2].Trim());
                 }
                 if(points.Length != amount)
                 {
@@ -115,9 +131,10 @@ namespace TSP
             }
             showMessage("Thêm thông tin thành công!!!", "Success",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+            cbxStart.SelectedIndex = 0;
             btnDel.Enabled = true;
             isPaint = true;
-            this.Refresh();
+            this.pnlResult.Refresh();
         }
         
         private void btnDel_Click(object sender, EventArgs e)
@@ -126,7 +143,11 @@ namespace TSP
             txtInfo.Text = "";
             btnDel.Enabled = false;
             isPaint = false;
-            this.Refresh();
+            cbxStart.Items.Clear();
+            cbxStart.Text = "";
+            cbxStart.Items.Add("--Chọn đảo bắt đầu--");
+            cbxStart.SelectedIndex = 0;
+            this.pnlResult.Refresh();
         }
 
         private void btnFind_Click(object sender, EventArgs e)
@@ -172,5 +193,19 @@ namespace TSP
             showMessage(content, caption, btn, icon);
             txt.Focus();
         }
+
+        private void cbxStart_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selectedIndex = cbxStart.SelectedIndex;
+            if(selectedIndex == 0)
+            {
+                btnFind.Enabled = false;
+            } else
+            {
+                btnFind.Enabled = true;
+            }
+            this.pnlResult.Refresh();
+        }
+
     }
 }
