@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -20,22 +21,27 @@ namespace TSP
         }
 
         List<PointF> points = new List<PointF>();
+
+		List<PointF> lines = new List<PointF>();
+
+		List<string> names = new List<string>();
         Edge[,] edges;
         Edge[] results;
         Edge[] tempResults;
-        float total = 0, lowerBound = 0, minTempResult = 999999999;
         int startPoint;
         int amount;
         bool isPaint = false;
+		bool isSuccess = false;
         string filePath = @"D:\Programs\CT239\TSP\TSP\point.txt";
         string info = "";
-        int selectedIndex = -100;
+        int selectedIndex;
         int row = 0;
         int scale = 10;
+		int lineWidth = 1;
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            clearData();
+			clearData();
             cbxStart.Items.Add("--Chọn đảo bắt đầu--");
             
             if (txtInfo.Text.Trim().Length == 0)
@@ -58,6 +64,7 @@ namespace TSP
                         return;
                     }
                     cbxStart.Items.Add(part[2].Trim());
+                    names.Add(part[2].Trim());
                 }
             }
             info = txtInfo.Text.Trim();
@@ -69,11 +76,11 @@ namespace TSP
             showMessage("Thêm thông tin thành công!!!", "Success",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
             cbxStart.SelectedIndex = 0;
-            selectedIndex = -100;
+            //selectedIndex = -100;
             btnDel.Enabled = true;
             isPaint = true;
-            this.pnlResult.Controls.Clear();
-            this.pnlResult.Refresh();
+            pnlResult.Controls.Clear();
+            pnlResult.Refresh();
         }
         
         private void btnDel_Click(object sender, EventArgs e)
@@ -91,18 +98,35 @@ namespace TSP
 
         void clearData()
         {
+			isSuccess = false;
             row = 0;
+			selectedIndex = -100;
             cbxStart.Items.Clear();
             points.Clear();
+			lines.Clear();
+            names.Clear();
+            lblResult.Text = "";
         }
 
         private void btnFind_Click(object sender, EventArgs e)
-        { 
-            tsp(edges, results, tempResults, ref total,
+		{
+			float total = 0, lowerBound = 0, minTempResult = 999999999;
+
+			edges = new Edge[amount, amount];
+			results = new Edge[amount];
+			tempResults = new Edge[amount];
+
+			fillEdge(edges, amount);
+
+			tsp(edges, results, tempResults, ref total,
                 ref lowerBound, ref minTempResult, amount, 0, startPoint);
-            displayResult(results, amount);
-            //pnlResultText.set
-        }
+			showMessage("Tìm kiếm thành công!", "Success",
+					MessageBoxButtons.OK, MessageBoxIcon.Information);
+			displayResult(results, amount);
+
+			isSuccess = true;
+			this.pnlResult.Refresh();
+		}
 
         private void btnHelp_Click(object sender, EventArgs e)
         {
@@ -149,10 +173,11 @@ namespace TSP
             {
                 selectedIndex = cbxStart.SelectedIndex;
                 btnFind.Enabled = true;
+				isSuccess = false;
             } else
             {
                 btnFind.Enabled = false;
-                selectedIndex = -100;
+                //selectedIndex = -100;
             }
             this.pnlResult.Refresh();
         }
@@ -165,11 +190,14 @@ namespace TSP
 
         private void pnlResult_Paint(object sender, PaintEventArgs e)
         {
-            points.Clear();
-            row = 0; 
+             
             if (isPaint)
             {
-                StreamReader file = new StreamReader(filePath);
+				points.Clear();
+				lines.Clear();
+				row = 0;
+
+				StreamReader file = new StreamReader(filePath);
                 Brush color;
                 Pen pinkPen = new Pen(Color.DeepPink, 3);
                 string line;
@@ -191,32 +219,45 @@ namespace TSP
                         color = Brushes.Black;
                     }
                     string[] part = line.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    xCoordinate = (float.Parse(part[0]) * scale + xOrigin);
-                    yCoordinate = (float.Parse(part[1]) * scale * -1 + yOrigin);
-                    points.Add(new PointF(float.Parse(part[0]), float.Parse(part[1])));
-                    e.Graphics.FillEllipse(color, xCoordinate, yCoordinate, round, round);
+                    xCoordinate = (float.Parse(part[0], CultureInfo.InvariantCulture.NumberFormat) 
+						* scale + xOrigin);
+                    yCoordinate = (float.Parse(part[1], CultureInfo.InvariantCulture.NumberFormat) 
+						* scale * -1 + yOrigin);
+					lines.Add(new PointF(xCoordinate, yCoordinate));
 
-                    Label name = new Label();
+					points.Add(new PointF(float.Parse(part[0], CultureInfo.InvariantCulture.NumberFormat),
+						float.Parse(part[1], CultureInfo.InvariantCulture.NumberFormat)));
+                    e.Graphics.FillEllipse(color, xCoordinate, yCoordinate, round, round);
+					
+					Label name = new Label();
                     name.Text = part[2];
                     name.Location = new Point((int)(xCoordinate + scale/2) , (int)(yCoordinate - scale/2));
                     name.ForeColor = Color.White;
                     name.BackColor = Color.Transparent;
+                    name.AutoSize = true;
+                    name.Padding = new Padding(0);
                     pnlResult.Controls.Add(name);
                 }
 
-
+				startPoint = selectedIndex - 1;
                 amount = points.Count;
 
-                edges = new Edge[amount, amount];
-                results = new Edge[amount];
-                tempResults = new Edge[amount];
+				file.Close();
 
-                fillEdge(edges, amount);
+				//draw line
+				if (isSuccess)
+				{
+					for (int i = 0; i < amount; i++)
+					{
+						Pen greenPen = new Pen(Color.Green, lineWidth);
+						e.Graphics.DrawLine(greenPen, lines[results[i].getStartPoint()],
+							lines[results[i].getEndPoint()]);
 
-                startPoint = selectedIndex == -100 ? 1 : selectedIndex - 1;
+						
+					}
 
-                file.Close(); 
-            }
+				}				
+			}
         }
         
         void fillEdge(Edge[, ] edges, int amountPoint)
@@ -264,18 +305,18 @@ namespace TSP
         void displayResult(Edge[] results, int amount)
         {
             float sum = 0;
-            Console.WriteLine("phuong an tim duoc la");
-            for(int i = 0; i < amount; i++)
+            lblResult.Text = "";
+            for (int i = 0; i < amount; i++)
             {
                 sum += results[i].getLength();
-                Console.WriteLine(results[i].getStartPoint() + ""
-                        + results[i].getEndPoint() + " = "
-                        + results[i].getLength() + "   ");
+                lblResult.Text += names[results[i].getStartPoint()] + " - "
+                    + names[results[i].getEndPoint()] + " = "
+                    + results[i].getLength().ToString() + "\n";
             }
-            Console.WriteLine("Tong khoang cach = "  + sum);
+            lblResult.Text += "\nTổng khoảng cách = " + sum + " hải lý";
         }
 
-        //Brand and Bound for TSP
+        //Branch and Bound for TSP
         float findMinEdge(Edge[, ] edges, int amount)
         {
             float min = 999999999;
@@ -350,9 +391,10 @@ namespace TSP
                 }
         }
 
-        private void numericUpDownScale_ValueChanged(object sender, EventArgs e)
+		private void numericUpDownScale_ValueChanged(object sender, EventArgs e)
         {
-            scale = 10 * (int)numericUpDownScale.Value;
+			lineWidth = (int)numericUpDownScale.Value;
+			scale = 10 * (int)numericUpDownScale.Value;
             this.pnlResult.Controls.Clear();
             this.pnlResult.Refresh();
         }

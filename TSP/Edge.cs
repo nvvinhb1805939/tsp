@@ -27,14 +27,6 @@ namespace TSP
             return (Edge) this.MemberwiseClone();
         }
 
-        /*public Edge(Edge edge)
-        {
-            this.length = edge.length;
-            this.startPoint = edge.startPoint;
-            this.endPoint = edge.endPoint;
-            this.isVisited = edge.isVisited;
-        }*/
-
         public float getLength()
         {
             return this.length;
