@@ -1,5 +1,10 @@
--5,1,a
--7,-8.5,b
-0,-5,c
-5,4,f
-7,-7.25,e
+0,0,Nhà
+0,2,Đồng Tháp
+-2,0,An Giang
+
+
+
+6,1,Cần Thơ
+8,-4, Hậu Giang
+-4,-2, Kiên Giang
+9,4, Trà Vinh,
