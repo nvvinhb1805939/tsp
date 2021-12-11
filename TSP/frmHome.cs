@@ -53,11 +53,11 @@ namespace TSP
 				return;
 			}
 			for (int index = 0; index < txtInfo.Lines.Length; index++) {
-				string[] line = txtInfo.Lines[index].Trim().Split(new char[] { ',' },
-					StringSplitOptions.RemoveEmptyEntries);
+				string[] line = txtInfo.Lines[index].Trim().Split(
+					new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 				if (line.Length == 0 || line == null) {
 					continue;
-				} else if (line.Length > 3 || !isNumber(line[0]) || !isNumber(line[1])) {
+				} else if (line.Length != 3 || !isNumber(line[0]) || !isNumber(line[1])) {
 					handleInput("Vui lòng xem lại hướng dẫn và nhập lại!", 
 						"Thông tin không hợp lệ",
 						MessageBoxButtons.OK, MessageBoxIcon.Warning, txtInfo);
@@ -187,94 +187,85 @@ namespace TSP
 
         private void pnlResult_Paint(object sender, PaintEventArgs e)
         {
-			try
+			if (isPaint)
 			{
+				points.Clear();
+				lines.Clear();
+				row = 0;
 
-				if (isPaint)
+				StreamReader file = new StreamReader(filePath);
+				Brush color;
+				string line;
+				float round = scale;
+				float xCoordinate;
+				float yCoordinate;
+				float xOrigin = (pnlResult.Width / 2) - (round / 2);
+				float yOrigin = (pnlResult.Height / 2) - (round / 2);
+
+				while ((line = file.ReadLine()) != null)
 				{
-					points.Clear();
-					lines.Clear();
-					row = 0;
-
-					StreamReader file = new StreamReader(filePath);
-					Brush color;
-					Pen pinkPen = new Pen(Color.DeepPink, 3);
-					string line;
-					float round = scale;
-					float xCoordinate;
-					float yCoordinate;
-					float xOrigin = (pnlResult.Width / 2) - (round / 2);
-					float yOrigin = (pnlResult.Height / 2) - (round / 2);
-
-					while ((line = file.ReadLine()) != null)
+					row++;
+					if (row == selectedIndex)
 					{
-						row++;
-						if (row == selectedIndex)
-						{
-							color = Brushes.Orange;
-						}
-						else
-						{
-							color = Brushes.Black;
-						}
-						string[] part = line.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-						if (part == null || part.Length == 0)
-						{
-							continue;
-						}
-						else
-						{
-							xCoordinate = (float.Parse(part[0], CultureInfo.InvariantCulture.NumberFormat)
-							* scale + xOrigin);
-							yCoordinate = (float.Parse(part[1], CultureInfo.InvariantCulture.NumberFormat)
-								* scale * -1 + yOrigin);
-							lines.Add(new PointF(xCoordinate, yCoordinate));
-
-							points.Add(new PointF(float.Parse(part[0], CultureInfo.InvariantCulture.NumberFormat),
-								float.Parse(part[1], CultureInfo.InvariantCulture.NumberFormat)));
-							e.Graphics.FillEllipse(color, xCoordinate, yCoordinate, round, round);
-
-							if (hasExistItem(cbxStart, (part[2].Trim())))
-							{
-								cbxStart.Items.Add(part[2].Trim());
-							}
-							names.Add(part[2].Trim());
-
-							Label name = new Label();
-							name.Text = part[2];
-							name.Location = new Point((int)(xCoordinate + scale / 2), (int)(yCoordinate - scale / 2));
-							name.ForeColor = Color.White;
-							name.BackColor = Color.Transparent;
-							name.AutoSize = true;
-							name.Padding = new Padding(0);
-							pnlResult.Controls.Add(name);
-						}
+						color = Brushes.Orange;
 					}
-
-					startPoint = selectedIndex - 1;
-					amount = points.Count;
-
-					file.Close();
-
-					//draw line
-					if (isSuccess)
+					else
 					{
-						for (int i = 0; i < amount; i++)
-						{
-							Pen pen = new Pen(Color.DeepPink, lineWidth);
-							e.Graphics.DrawLine(pen, lines[results[i].getStartPoint()],
-								lines[results[i].getEndPoint()]);
-						}
+						color = Brushes.Black;
+					}
+					string[] part = line.Trim().Split(new char[] { ',' },
+						StringSplitOptions.RemoveEmptyEntries);
+					if (part == null || part.Length == 0)
+					{
+						continue;
+					}
+					else
+					{
+						xCoordinate = float.Parse(part[0], CultureInfo.InvariantCulture.NumberFormat)
+						* scale + xOrigin;
+						yCoordinate = float.Parse(part[1], CultureInfo.InvariantCulture.NumberFormat)
+							* scale * -1 + yOrigin;
+						lines.Add(new PointF(xCoordinate, yCoordinate));
 
+						points.Add(new PointF(float.Parse(part[0], CultureInfo.InvariantCulture.NumberFormat),
+							float.Parse(part[1], CultureInfo.InvariantCulture.NumberFormat)));
+						e.Graphics.FillEllipse(color, xCoordinate, yCoordinate, round, round);
+
+						if (hasExistItem(cbxStart, (part[2].Trim())))
+						{
+							cbxStart.Items.Add(part[2].Trim());
+						}
+						names.Add(part[2].Trim());
+
+						Label name = new Label();
+						name.Text = part[2];
+						name.Location = new Point((int)(xCoordinate + scale / 2), (int)(yCoordinate - scale / 2));
+						name.ForeColor = Color.White;
+						name.BackColor = Color.Transparent;
+						name.AutoSize = true;
+						name.Padding = new Padding(0);
+						pnlResult.Controls.Add(name);
 					}
 				}
+
+				startPoint = selectedIndex - 1;
+				amount = points.Count;
+
+				file.Close();
+
+				//draw line
+				if (isSuccess)
+				{
+					for (int i = 0; i < amount; i++)
+					{
+						Pen pen = new Pen(Color.DeepPink, lineWidth);
+						e.Graphics.DrawLine(pen, lines[results[i].getStartPoint()],
+							lines[results[i].getEndPoint()]);
+					}
+
+				}
 			}
-			catch (Exception ex) {
-				string content = "Vui lòng kiểm tra lại thông tin các đảo và thử lại!";
-				showMessage(content, "Có lỗi xảy ra", MessageBoxButtons.OK,
-					MessageBoxIcon.Error);
-			}
-        }
+		}
         
         void fillEdge(Edge[, ] edges, int amountPoint)
         {
@@ -417,6 +408,10 @@ namespace TSP
 				tempPoints[index] = currentPoints[index];
 			}
 			return tempPoints;
+		}
+
+		bool hasNull(string line) {
+			return line.Length == 0 || line == null;
 		}
 
 		private void numericUpDownScale_ValueChanged(object sender, EventArgs e)
