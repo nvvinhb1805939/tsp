@@ -67,7 +67,6 @@ namespace TSP
 			using (StreamWriter file = new StreamWriter(filePath))
 			{
 				file.WriteLine(info);
-				//file.Close();
 			}
 			showMessage("Thêm thông tin thành công!!!", "Thông  báo",
 				MessageBoxButtons.OK, MessageBoxIcon.Information);
