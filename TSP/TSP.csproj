@@ -147,5 +147,23 @@
   <ItemGroup>
     <None Include="Resource\invalid_input1.PNG" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\add.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\cbbx.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\find.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\upDown.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\save.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\del.PNG" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

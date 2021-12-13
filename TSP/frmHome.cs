@@ -57,7 +57,7 @@ namespace TSP
 					new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 				if (line.Length == 0 || line == null) {
 					continue;
-				} else if (line.Length != 3 || !isNumber(line[0]) || !isNumber(line[1])) {
+				} else if (line.Length != 3 || !isNumber(line[0].Trim()) || !isNumber(line[1].Trim())) {
 					handleInput("Vui lòng xem lại hướng dẫn và nhập lại!", 
 						"Thông tin không hợp lệ",
 						MessageBoxButtons.OK, MessageBoxIcon.Warning, txtInfo);
